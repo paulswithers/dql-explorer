@@ -35,6 +35,7 @@ import { getTheme, mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/li
 import { columnsToString } from '../lib/utils';
 
 import withApp from '../withApp';
+const axios = require('axios');
 
 const theme = getTheme();
 const classNames = mergeStyleSets({
@@ -311,6 +312,12 @@ class Results extends React.Component {
         iconProps: { iconName: 'Download' },
         onClick: this._onDownloadJSON
       },
+      {
+        key: 'downloadConnections',
+        text: 'Send as Spreadsheet to Connections',
+        iconProps: { iconName: 'Download' },
+        onClick: this._onDownloadConnections
+      },
     ];
   };
 
@@ -542,6 +549,29 @@ class Results extends React.Component {
     link.setAttribute('download', 'dqlresults.json');
     document.body.appendChild(link);
     link.click();
+  }
+
+  _onDownloadConnections = () => {
+    const { items } = this.state;
+    
+    const json = JSON.stringify(items);
+  
+    var params = {
+      method: "post",
+      url: "http://127.0.0.1:1880/receiveJson",
+      headers: {'Content-Type': 'application/json;charset=UTF-8'},
+      data: json
+    };
+
+    axios.request(params)
+      .then(function (response) {
+        if (response.statusCode === 200 && response.statusCode < 300) {
+          alert('File uploaded successfully');
+        }
+      }).catch(function (error) {
+        alert(error);
+        console.log("Error");
+      });
   }
 
   _onItemsSelectionChanged = () => {
